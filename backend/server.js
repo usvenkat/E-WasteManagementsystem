@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const path = require('path');
 const connectDB = require('./config/database');
 
 // Import routes
@@ -60,12 +61,21 @@ app.get('/api/db-status', (req, res) => {
   });
 });
 
-// Handle 404 errors
-app.use('*', (req, res) => {
-  res.status(404).json({
-    message: 'Route not found'
+// Serve React frontend in production
+if (process.env.NODE_ENV === 'production') {
+  const frontendBuild = path.join(__dirname, '..', 'frontend', 'build');
+  app.use(express.static(frontendBuild));
+
+  // All non-API routes → return React's index.html (client-side routing)
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendBuild, 'index.html'));
   });
-});
+} else {
+  // Development: simple 404 for unknown routes
+  app.use('*', (req, res) => {
+    res.status(404).json({ message: 'Route not found' });
+  });
+}
 
 // Global error handler
 app.use((err, req, res, next) => {
