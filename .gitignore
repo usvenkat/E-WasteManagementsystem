@@ -65,7 +65,8 @@ dist
 
 # Gatsby files
 .cache/
-public
+# Note: do NOT ignore frontend/public - it contains index.html needed for build
+.gatsby-cache/
 
 # Storybook build outputs
 .out
